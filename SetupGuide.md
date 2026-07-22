@@ -1,99 +1,48 @@
-Here is a step-by-step walkthrough to set up your Windows Terminal and PowerShell environment using your **`window_dotfiles`** repository based on Takuya Matsuyama's (*Dev as Life*) workflow.
+That error happens because **`-PredictionSource` is a feature of PSReadLine 2.1.0 or newer**, and your current installed version is older (most likely the stock version 2.0.0 that came with Windows PowerShell).
+
+Since the parameter doesn't exist in older versions, PowerShell throws an `InvalidArgument` error.
 
 ---
 
-### Setup Guide
+## How to Fix It
 
-1. **Install Patched Nerd Fonts:** Required for prompt icons.
-Oh My Posh relies on special glyphs and icons that standard Windows fonts don't include.
+### 1. Update PSReadLine to the Latest Version
 
-1. Download a Nerd Font like **Hack Nerd Font** or **JetBrainsMono Nerd Font** from [Nerd Fonts](https://www.nerdfonts.com/).
-2. Extract the `.zip` file, select all font files, right-click, and select **Install for all users**.
-
-
-2. **Install PowerShell 7 & Scoop Package Manager:** 5 min.
-Install the modern cross-platform PowerShell 7 and the Scoop package installer:
+Run this in PowerShell to update to the newer version that supports predictive IntelliSense:
 
 ```powershell
-# Install PowerShell 7 via winget
-winget install --id Microsoft.PowerShell --source winget
-
-# Enable execution policy for scripts
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-
-# Install Scoop
-Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+Install-Module -Name PSReadLine -AllowClobber -Force
 
 ```
 
+> **Note:** If you get a prompt asking to trust the repository (`PSGallery`), type `Y` and press **Enter**.
 
-3. **Install CLI Tools & Oh My Posh:** Terminal utilities.
-Use Scoop to install the essential command-line tools used in the setup:
+### 2. Restart PowerShell
 
-```powershell
-scoop install git neovim oh-my-posh zoxide fzf
-scoop bucket add extras
+Close your terminal window and open a fresh PowerShell session so it loads the updated module.
 
-```
+### 3. Enable Predictive History
 
-
-4. **Clone Your Dotfiles Repository:** Repository deployment.
-Clone your repository into your home directory or `.config` folder:
+Now you can re-run your command without errors:
 
 ```powershell
-# Create config directory if it doesn't exist
-New-Item -Path "$HOME\.config" -ItemType Directory -Force
-
-# Clone your dotfiles repo
-git clone https://github.com/thimthy4u/window_dotfiles.git "$HOME\.config\powershell"
+Set-PSReadLineOption -PredictionSource History
 
 ```
-
-
-5. **Configure Your PowerShell Profile ($PROFILE):** Profile activation.
-Set up PowerShell to load your `user_profile.ps1` automatically on startup:
-
-1. Check your profile path by running `$PROFILE` in PowerShell.
-2. Create or edit your profile file:
-
-```powershell
-if (!(Test-Path $PROFILE)) { New-Item -Type File -Path $PROFILE -Force }
-notepad $PROFILE
-
-```
-
-3. Add dot-sourcing to load your custom profile from the cloned repo:
-
-```powershell
-. "$HOME\.config\powershell\user_profile.ps1"
-
-```
-
-Ensure your `user_profile.ps1` contains your Oh My Posh init command and module imports:
-
-```powershell
-# Sample initialization inside user_profile.ps1
-oh-my-posh init pwsh --config "$HOME\.config\powershell\theme.omp.json" | Invoke-Expression
-Import-Module -Name Terminal-Icons
-
-# Aliases
-Set-Alias ll ls
-Set-Alias g git
-Set-Alias nv nvim
-
-```
-
-
-6. **Configure Windows Terminal Settings:** Visual tuning.
-Open **Windows Terminal** -> Press `Ctrl + ,` -> Click **Open JSON file** (bottom left).
-
-Update your default profile configuration:
-
-* **Font Face:** Set to `"Hack Nerd Font"` or `"JetBrainsMono NF"`.
-* **Opacity & Acrylic:** Enable background transparency and acrylic effect.
-* **Default Shell:** Point default profile GUID to PowerShell 7.
-
 
 ---
 
-> **Tip:** If script execution errors appear when opening PowerShell, run `Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser` to allow your custom profile scripts to load smoothly.
+### Pro-Tip: Add Next-Level Suggestions
+
+While `-PredictionSource History` gives you standard inline suggestions, adding these two lines to your profile makes it feel like a modern AI-assisted shell:
+
+```powershell
+# Set prediction source to History
+Set-PSReadLineOption -PredictionSource History
+
+# Shows predictions in a rich list format instead of just inline text
+Set-PSReadLineOption -PredictionView ListView
+
+```
+
+*(You can toggle between list view and inline view anytime using **F2** while typing!)*
