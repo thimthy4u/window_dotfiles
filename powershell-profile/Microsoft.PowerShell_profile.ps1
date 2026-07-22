@@ -1,4 +1,3 @@
-(@(& 'C:/Users/Thim/AppData/Local/Programs/oh-my-posh/bin/oh-my-posh.exe' init pwsh --config='C:\Users\Thim\AppData\Local\Programs\oh-my-posh\themes\blueish.omp.json' --print) -join "`n") | Invoke-Expression
 Import-Module -Name Terminal-Icons
 . $env:USERPROFILE\.config\powershell\user_profile.ps1
 
